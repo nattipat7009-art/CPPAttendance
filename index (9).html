@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPP Attendance</title>
+<style>
+:root {
+  --site-primary: #145c45;
+  --site-on-primary: #ffffff;
+  --site-secondary: #e6f1eb;
+  --site-on-secondary: #173d30;
+  --site-background: #f3f6f4;
+  --site-on-background: #1b2923;
+  --site-font-body: "Leelawadee UI", Tahoma, sans-serif;
+  --site-font-heading: "Leelawadee UI", Tahoma, sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+#app { min-height: 100vh; width: 100%; border-radius: 0; background-color: var(--site-background); color: var(--site-on-background); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.topbar { background:#ffffff; color:#183e30; padding:calc(16px * var(--site-spacing-scale)) max(20px, calc((100vw - 1380px)/2)); display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:4px solid #c58a2a; box-shadow:0 2px 8px rgba(20,50,35,.07); }
+.brand { display:flex; align-items:center; gap:15px; }
+.logo { width:58px; height:58px; flex:0 0 58px; display:grid; place-items:center; background:#fff; border:1px solid #e3e8e3; border-radius:50%; padding:3px; }
+.logo img { width:100%; height:100%; display:block; object-fit:contain; }
+.brand h1 { font-size:calc(22px * var(--site-heading-scale)); margin:0; letter-spacing:.15px; color:#174b36; font-weight:800; }
+.brand p { margin:4px 0 0; font-size:12px; color:#586b60; }
+.top-right { text-align:right; font-size:12px; opacity:.9; }
+.shell { max-width:1380px; margin:auto; padding:24px 22px 44px; }
+.nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+.nav button { border:1px solid #d7e1db; color:#385448; background:#fff; border-radius:12px; padding:10px 15px; font-weight:650; }
+.nav button.active { background:var(--site-primary); color:var(--site-on-primary); border-color:var(--site-primary); }
+.page-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin:8px 0 20px; }
+.page-head h2 { font-size:calc(25px * var(--site-heading-scale)); margin:0 0 5px; }
+.page-head p { margin:0; color:#718078; font-size:13px; }
+.date-chip { background:#fff; border:1px solid #dce5df; padding:10px 13px; border-radius:12px; font-size:13px; }
+.stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+.stat { background:#fff; border:1px solid #e1e8e3; border-radius:16px; padding:18px; box-shadow:0 3px 12px rgba(24,54,39,.035); }
+.stat .label { color:#718078; font-size:12px; }
+.stat .value { font-size:29px; font-weight:800; margin-top:7px; color:#183e30; }
+.stat .sub { color:#87938d; font-size:11px; margin-top:3px; }
+.panel { background:#fff; border:1px solid #e1e8e3; border-radius:18px; padding:19px; box-shadow:0 3px 12px rgba(24,54,39,.035); margin-bottom:17px; }
+.panel-title { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+.panel-title h3 { margin:0; font-size:16px; }
+.muted { color:#78867e; font-size:12px; }
+.quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.quick-card { border:1px solid #dfe9e2; border-radius:14px; padding:15px; background:#fbfdfb; }
+.quick-card label { display:block; font-size:12px; font-weight:700; margin-bottom:8px; }
+input, select { width:100%; border:1px solid #d8e2db; border-radius:10px; padding:10px 11px; color:#24372d; background:#fff; outline:none; }
+input:focus, select:focus { border-color:#4c9877; box-shadow:0 0 0 3px rgba(76,152,119,.13); }
+.btn { border:0; border-radius:10px; padding:10px 14px; font-weight:700; background:var(--site-primary); color:#fff; }
+.btn:hover { filter:brightness(1.08); }
+.btn.light { background:#eaf3ed; color:#1d553e; }
+.btn.outline { background:#fff; color:#315c48; border:1px solid #d5e1d9; }
+.btn.danger { background:#fff0ee; color:#a33b32; }
+.btn.small { padding:7px 10px; font-size:12px; }
+.quick-card .btn { width:100%; margin-top:9px; }
+.table-wrap { overflow:auto; }
+table { width:100%; border-collapse:collapse; min-width:650px; }
+th { background:#f1f6f2; color:#53675c; text-align:left; font-size:12px; font-weight:750; padding:12px 11px; white-space:nowrap; }
+td { padding:12px 11px; border-bottom:1px solid #edf1ee; font-size:13px; }
+tr:last-child td { border-bottom:0; }
+.pill { display:inline-block; padding:4px 9px; border-radius:99px; font-size:11px; font-weight:750; background:#edf3ef; color:#4a6355; white-space:nowrap; }
+.pill.ok { background:#e5f4eb; color:#237448; }
+.pill.warn { background:#fff3dc; color:#9b6a14; }
+.pill.info { background:#e9f0ff; color:#365d9b; }
+.pill.bad { background:#ffebe8; color:#a44035; }
+.toolbar { display:flex; flex-wrap:wrap; gap:9px; align-items:center; }
+.toolbar input, .toolbar select { width:auto; min-width:145px; }
+.form-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; align-items:end; }
+.field label { display:block; font-size:12px; font-weight:700; margin:0 0 6px; }
+.field .btn { width:100%; }
+.notice { border-radius:12px; padding:12px 14px; background:#edf5ef; color:#315d43; font-size:12px; line-height:1.6; margin-bottom:15px; }
+.empty { text-align:center; color:#87938c; padding:28px; font-size:13px; }
+.hidden { display:none !important; }
+footer { text-align:center; color:#8a968f; font-size:11px; padding:15px 0 0; }
+@media(max-width:850px) { .stats {grid-template-columns:repeat(2,minmax(0,1fr));} .quick-grid {grid-template-columns:1fr;} .form-grid {grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media(max-width:540px) { .topbar {padding:14px 16px;} .top-right {display:none;} .shell {padding:17px 13px 30px;} .page-head {align-items:flex-start; flex-direction:column;} .stats {gap:9px;} .stat {padding:13px;} .stat .value {font-size:24px;} .form-grid {grid-template-columns:1fr;} .nav {display:grid; grid-template-columns:repeat(2,1fr);} .nav button {text-align:center;} }
+@media(prefers-color-scheme:dark) {
+ .topbar {background:#ffffff;color:#183e30;}
+ body, #app { background:#101713; color:#e7eee9; }
+ .nav button, .panel, .stat, .quick-card, .date-chip { background:#19231d; color:#e7eee9; border-color:#2b3b31; }
+ .nav button.active {background:var(--site-primary); color:#fff;}
+ .stat .value {color:#c5ead3;} .stat .label,.stat .sub,.page-head p,.muted {color:#a5b5aa;}
+ input,select {background:#111a15;color:#edf4ef;border-color:#35483b;}
+ th {background:#223128;color:#c0d0c5;} td {border-color:#2a382f;}
+ .quick-card {background:#17221b;} .btn.light {background:#263c2e;color:#cde8d6;} .btn.outline {background:#19231d;color:#d7e7dc;border-color:#405447;}
+ .notice {background:#20382a;color:#c5e4cf;} .pill {background:#293a30;color:#d0e0d5;}
+}
+@media print { .topbar,.nav,.no-print,footer {display:none!important;} body,#app {background:#fff;color:#111;} .shell {max-width:none;padding:0;} .panel,.stat {box-shadow:none;border:0;padding:0;} .stats {display:none;} table {min-width:0;} th,td {font-size:10px;padding:7px;border:1px solid #bbb;} }
+/* A4 report layout */
+.report-paper { background:#fff; color:#111; padding:18px 22px; }
+.report-heading { text-align:center; line-height:1.35; margin:0 0 12px; }
+.report-heading img { width:58px; height:58px; object-fit:contain; display:block; margin:0 auto 5px; }
+.report-heading h3 { margin:0 0 3px; font-size:17px; color:#111; }
+.report-heading strong,.report-heading div { color:#111; }
+.report-table { width:100%; border-collapse:collapse; min-width:0; }
+.report-table th,.report-table td { border:1px solid #111; color:#111; background:#fff; padding:5px 7px; font-size:11px; }
+.report-table th { text-align:center; font-weight:700; }
+.report-table td:first-child,.report-table td:nth-child(n+3) { text-align:center; }
+.report-bottom { display:grid; grid-template-columns:1fr 1.15fr; gap:28px; align-items:end; margin-top:18px; }
+.report-summary { max-width:100%; margin:0!important; }
+.report-summary table { width:100%; min-width:0; border-collapse:collapse; }
+.report-summary th,.report-summary td { border:1px solid #111; padding:4px 6px; color:#111; background:#fff; font-size:10px; }
+.report-signatures { display:grid; grid-template-columns:1fr 1fr; gap:12px 22px; text-align:center; font-size:10px; line-height:1.7; color:#111; }
+.report-signatures .director { grid-column:1/-1; }
+.report-notes { color:#111!important; font-size:9px; line-height:1.4; margin-top:8px; }
+.select-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px 12px; padding:12px; border:1px solid #e1e8e3; border-radius:12px; margin-top:12px; }
+.select-list label { display:flex; align-items:center; gap:7px; font-size:12px; }
+.select-list input { width:auto; }
+@page { size:A4 portrait; margin:0; }
+@media print {
+  html,body,#app { background:#fff!important; color:#111!important; }
+  .shell { max-width:none; padding:0!important; margin:0!important; }
+  #report { display:block!important; }
+  #report > .page-head { display:none!important; }
+  #report .panel { margin:0!important; padding:0!important; border:0!important; }
+  .report-paper { padding:12mm!important; }
+  .report-heading { margin-bottom:10px!important; }
+  .report-table th,.report-table td { font-size:10pt!important; padding:4px 6px!important; border:1px solid #111!important; }
+  .report-bottom { break-inside:avoid; }
+  .report-summary th,.report-summary td { font-size:9pt!important; }
+  .report-summary tr:last-child td { border-bottom:1px solid #111!important; }
+  .report-signatures { font-size:9pt!important; }
+  .report-notes { font-size:8pt!important; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="topbar">
+  <div class="brand"><div class="logo" aria-label="ตราสัญลักษณ์โรงเรียนโชคเพชรพิทยา"><img src="data:image/jpeg;base64,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" alt="ตราโรงเรียนโชคเพชรพิทยา"></div><div><h1>CPP Attendance</h1><p>ระบบบันทึกเวลาเข้า–ออกงานและการปฏิบัติราชการ</p><p>โรงเรียนโชคเพชรพิทยา · Chokphet Pittaya School</p></div></div>
+  <div class="top-right"><div id="todayText"></div><div>ระบบสารสนเทศงานบุคลากร</div></div>
+</header>
+<main class="shell">
+  <nav class="nav no-print" id="nav">
+    <button class="active" data-page="dashboard">ภาพรวม</button>
+    <button data-page="record">บันทึกเวลา</button>
+    <button data-page="history">ประวัติการบันทึก</button>
+    <button data-page="staff">บุคลากร</button>
+    <button data-page="report">รายงาน</button>
+  </nav>
+  <section id="dashboard" class="page">
+    <div class="page-head"><div><h2>ภาพรวมการปฏิบัติราชการ</h2><p>สรุปสถานะการลงเวลาของบุคลากรในวันที่เลือก</p></div><div class="date-chip">วันที่ <strong id="dashDateLabel"></strong></div></div>
+    <div class="stats" id="stats"></div>
+    <div class="panel no-print"><div class="panel-title"><h3>บันทึกเวลาอย่างรวดเร็ว</h3><span class="muted">เลือกชื่อแล้วกดปุ่มเพื่อบันทึกเวลาปัจจุบัน</span></div><div class="quick-grid">
+      <div class="quick-card"><label for="quickStaff">ชื่อ-นามสกุล</label><select id="quickStaff"></select><button class="btn" onclick="quickRecord('เวลามา')">ลงเวลาเข้างาน</button></div>
+      <div class="quick-card"><label>ชื่อบุคลากรที่เลือก</label><div id="quickName" style="font-weight:750;padding:7px 0 13px">—</div><button class="btn light" onclick="quickRecord('เวลากลับ')">ลงเวลาออกงาน</button></div>
+      <div class="quick-card"><label>บันทึกสถานะอื่น</label><select id="quickStatus"><option value="ขออนุญาตเข้าสาย (R)">ขออนุญาตเข้าสาย (R)</option><option value="ไปราชการ (O)">ไปราชการ (O)</option><option value="ลากิจ (P)">ลากิจ (P)</option><option value="ลาป่วย (S)">ลาป่วย (S)</option><option value="ลาคลอดบุตร (M)">ลาคลอดบุตร (M)</option></select><button class="btn outline" onclick="quickOther()">บันทึกสถานะ</button></div>
+    </div></div>
+    <div class="panel"><div class="panel-title"><h3>สถานะบุคลากรวันนี้</h3><span class="muted" id="staffCount"></span></div><div class="table-wrap"><table><thead><tr><th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>เวลามา</th><th>เวลากลับ</th><th>หมายเหตุ</th><th>สถานะ</th></tr></thead><tbody id="todayRows"></tbody></table></div></div>
+  </section>
+  <section id="record" class="page hidden">
+    <div class="page-head"><div><h2>บันทึกเวลาและการปฏิบัติราชการ</h2><p>บันทึกอัตโนมัติด้วยเวลาปัจจุบัน หรือกรอกข้อมูลย้อนหลังด้วยตนเอง</p></div></div>
+    <div class="notice">เวลาที่บันทึกจะถูกจัดเก็บในเบราว์เซอร์ของอุปกรณ์นี้ในตัวอย่างเว็บไซต์นี้ หากต้องการให้บุคลากรทุกคนเห็นข้อมูลร่วมกัน ต้องเชื่อมต่อฐานข้อมูลส่วนกลางก่อนใช้งานจริง</div>
+    <div class="panel"><div class="panel-title"><h3>แบบฟอร์มบันทึกข้อมูล</h3><span class="pill ok">บันทึกได้ 7 ประเภท</span></div><div class="form-grid">
+      <div class="field"><label for="manualStaff">ชื่อ-นามสกุล</label><select id="manualStaff"></select></div>
+      <div class="field"><label for="manualAction">ประเภทการบันทึก</label><select id="manualAction"><option>เวลามา</option><option>เวลากลับ</option><option>ขออนุญาตเข้าสาย (R)</option><option>ไปราชการ (O)</option><option>ลากิจ (P)</option><option>ลาป่วย (S)</option><option>ลาคลอดบุตร (M)</option></select></div>
+      <div class="field"><label for="manualDate">วันที่</label><input id="manualDate" type="date"></div>
+      <div class="field"><label for="manualTime">เวลา</label><input id="manualTime" type="time" step="1"></div>
+      <div class="field" style="grid-column:1/-1"><button class="btn" onclick="manualRecord()">บันทึกรายการ</button></div>
+    </div></div>
+  </section>
+  <section id="history" class="page hidden">
+    <div class="page-head"><div><h2>ประวัติการบันทึก</h2><p>ตรวจสอบ แก้ไข หรือลบรายการบันทึกเวลา</p></div></div>
+    <div class="panel"><div class="toolbar no-print" style="margin-bottom:15px"><input id="historyDate" type="date" aria-label="กรองวันที่"><select id="historyStaff"><option value="">บุคลากรทั้งหมด</option></select><select id="historyAction"><option value="">ทุกประเภท</option><option>เวลามา</option><option>เวลากลับ</option><option>ขออนุญาตเข้าสาย (R)</option><option>ไปราชการ (O)</option><option>ลากิจ (P)</option><option>ลาป่วย (S)</option><option>ลาคลอดบุตร (M)</option></select><button class="btn outline" onclick="renderHistory()">ค้นหา</button><button class="btn light" onclick="clearHistoryFilters()">ล้างตัวกรอง</button></div><div class="table-wrap"><table><thead><tr><th>วัน/เวลา</th><th>ชื่อ-นามสกุล</th><th>ประเภท</th><th class="no-print">จัดการ</th></tr></thead><tbody id="historyRows"></tbody></table></div></div>
+  </section>
+  <section id="staff" class="page hidden">
+    <div class="page-head"><div><h2>จัดการบุคลากร</h2><p>รายชื่อเริ่มต้นจากข้อมูลที่ได้รับ จำนวน 21 คน</p></div></div>
+    <div class="panel no-print"><div class="panel-title"><h3>เพิ่มบุคลากร</h3></div><div class="toolbar"><input id="newStaff" placeholder="กรอกชื่อ-นามสกุล" style="max-width:360px"><button class="btn" onclick="addStaff()">เพิ่มรายชื่อ</button></div></div>
+    <div class="panel"><div class="panel-title"><h3>รายชื่อบุคลากร</h3><span class="muted" id="staffTotal"></span></div><div class="table-wrap"><table><thead><tr><th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th class="no-print">จัดการ</th></tr></thead><tbody id="staffRows"></tbody></table></div></div>
+  </section>
+  <section id="report" class="page hidden">
+    <div class="page-head"><div><h2>รายงานบัญชีลงเวลาปฏิบัติราชการ</h2><p>สรุปข้อมูลรายวันตามรูปแบบบัญชีลงเวลาของโรงเรียน</p></div></div>
+    <div class="panel"><div class="no-print" style="margin-bottom:16px"><div class="toolbar"><label for="reportDate" style="font-size:12px;font-weight:700">เลือกวันที่</label><input id="reportDate" type="date"><button class="btn outline" onclick="renderReport()">แสดงรายงาน</button><button class="btn" onclick="window.print()">พิมพ์ / บันทึกเป็น PDF</button><button class="btn light" onclick="exportCSV()">ส่งออก Excel (CSV)</button></div><div class="toolbar" style="margin-top:12px"><strong style="font-size:13px">เลือกรายชื่อที่ต้องการพิมพ์</strong><button class="btn small outline" onclick="toggleReportSelection(true)">เลือกทั้งหมด</button><button class="btn small outline" onclick="toggleReportSelection(false)">ล้างการเลือก</button><span id="selectedReportCount" class="muted"></span></div><div id="reportStaffSelection" class="select-list"></div></div>
+      <div class="report-paper"><div class="report-heading"><img id="reportLogo" alt="ตราโรงเรียนโชคเพชรพิทยา"><h3>บัญชีลงเวลาปฏิบัติราชการของบุคลากร</h3><strong>โรงเรียนโชคเพชรพิทยา ตำบลคอโค อำเภอเมืองสุรินทร์ จังหวัดสุรินทร์</strong><div>สำนักงานเขตพื้นที่การศึกษามัธยมศึกษาสุรินทร์</div><div id="reportDateThai" style="margin-top:5px;font-size:12px"></div></div>
+      <div class="table-wrap"><table class="report-table"><thead><tr><th style="width:7%">ลำดับที่</th><th>ชื่อ - สกุล</th><th style="width:16%">เวลามา</th><th style="width:16%">เวลากลับ</th><th style="width:21%">หมายเหตุ</th></tr></thead><tbody id="reportRows"></tbody></table></div>
+      <div class="report-notes">หมายเหตุ: R = ขออนุญาตเข้าสาย · S = ลาป่วย · P = ลากิจ · M = ลาคลอดบุตร · O = ไปราชการ</div>
+      <div class="report-bottom"><div id="reportSummary" class="report-summary"></div><div class="report-signatures"><div>ลงชื่อ ................................................<br>(................................................)<br>ผู้ตรวจ</div><div>ลงชื่อ ................................................<br>(................................................)<br>หัวหน้ากลุ่มบริหารงานบุคคล</div><div class="director">ลงชื่อ ................................................<br>(................................................)<br>ผู้อำนวยการโรงเรียนโชคเพชรพิทยา</div></div></div></div>
+    </div>
+  </section>
+  <footer>CPP Attendance · โรงเรียนโชคเพชรพิทยา</footer>
+</main>
+</div>
+<script>
+const INITIAL_STAFF = [
+'นางสมใจ บุญโต','นายสมพร  สิมมา','นายประดิษฐ์ สมสวย','นางกัญญาพัชร ชาญศรี','นางทับทิม บุญปลอด','นางสาวพุ่มพวง หวังดี','นางสุภาวดี  เมธาศิริ','นายนิวัฒน์ นามวัฒน์','นางสาวปนิตา สารคาม','นางทัศวรรณ เดวิส','นายมนตรี ศรีวงศ์','นายประเสริฐศักดิ์ บุญทน','นายอิสรพงษ์ มหานาม','นางกณิษฐา  แสงเพ็ชร','นายอาทิตย์  บูรณะเจริญศิริ','นายประทับ  เสาสูง','นางปทมรัตน์ สายไทย','นายสุพจน์ สมสุข','นายสนั่น บำเพ็ญดี','นางกฤตยา  สุขแสวง','นางสาวอรอุมา  แรงจบ'
+];
+const ACTIONS=['เวลามา','เวลากลับ','ขออนุญาตเข้าสาย (R)','ไปราชการ (O)','ลากิจ (P)','ลาป่วย (S)','ลาคลอดบุตร (M)'];
+const KEY='cppAttendancePreviewV1';
+let state=loadState();
+function loadState(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.staff)&&Array.isArray(s.records))return s;}catch(e){}return {staff:[...INITIAL_STAFF],records:[]};}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+function pad(n){return String(n).padStart(2,'0');}
+function dateKey(d=new Date()){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function nowTime(){const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function norm(s){return String(s||'').replace(/\s+/g,'');}
+function fillStaff(){const opts=state.staff.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');['quickStaff','manualStaff'].forEach(id=>document.getElementById(id).innerHTML=opts);document.getElementById('historyStaff').innerHTML='<option value="">บุคลากรทั้งหมด</option>'+opts;document.getElementById('quickName').textContent=state.staff[0]||'—';const previous=selectedReportNames();document.getElementById('reportStaffSelection').innerHTML=state.staff.map(n=>`<label><input type="checkbox" value="${escapeHtml(n)}" ${previous.length===0||previous.includes(n)?'checked':''} onchange="renderReport()">${escapeHtml(n)}</label>`).join('');const logo=document.querySelector('.logo img');if(logo)document.getElementById('reportLogo').src=logo.src;}
+function selectedRecords(day){return state.records.filter(r=>r.date===day);}
+function dailyData(day){const rows=selectedRecords(day);return state.staff.map((name,i)=>{const own=rows.filter(r=>norm(r.name)===norm(name));const ins=own.filter(r=>r.action==='เวลามา').sort((a,b)=>a.time.localeCompare(b.time));const outs=own.filter(r=>r.action==='เวลากลับ').sort((a,b)=>b.time.localeCompare(a.time));const note=['M','S','P','O','R'].find(code=>own.some(r=>r.action.includes(`(${code})`)))||'';const inTime=ins[0]?.time||'-';const outTime=outs[0]?.time||'-';let status='ขาด',cls='bad';if(note==='S'||note==='P'||note==='M'||note==='O'){status=({S:'ลาป่วย',P:'ลากิจ',M:'ลาคลอด',O:'ไปราชการ'})[note];cls='info';}else if(inTime!=='-'&&outTime!=='-'){status='มาปฏิบัติราชการ';cls='ok';}else if(inTime!=='-'||outTime!=='-'){status='ลงเวลาไม่ครบ';cls='warn';}else if(note==='R'){status='เข้าสาย';cls='warn';}return {i:i+1,name,inTime,outTime,note,status,cls};});}
+function counts(day){const a=dailyData(day);return {present:a.filter(x=>x.status==='มาปฏิบัติราชการ').length,leave:a.filter(x=>['ลาป่วย','ลากิจ','ลาคลอด','ไปราชการ'].includes(x.status)).length,late:a.filter(x=>x.status==='เข้าสาย').length,missing:a.filter(x=>x.status==='ขาด'||x.status==='ลงเวลาไม่ครบ').length};}
+function renderDashboard(){const day=dateKey();document.getElementById('dashDateLabel').textContent=new Date(day+'T00:00:00').toLocaleDateString('th-TH',{dateStyle:'long'});const c=counts(day);document.getElementById('stats').innerHTML=[['มาปฏิบัติราชการ',c.present,'ลงเวลาเข้าและออกครบ'],['ลา / ไปราชการ',c.leave,'บันทึกสถานะการลา'],['เข้าสาย',c.late,'ขออนุญาตเข้าสาย'],['ขาด / ลงเวลาไม่ครบ',c.missing,'ต้องตรวจสอบรายการ']].map(x=>`<div class="stat"><div class="label">${x[0]}</div><div class="value">${x[1]} <span style="font-size:13px;font-weight:500">คน</span></div><div class="sub">${x[2]}</div></div>`).join('');document.getElementById('staffCount').textContent=`ทั้งหมด ${state.staff.length} คน`;document.getElementById('todayRows').innerHTML=dailyData(day).map(x=>`<tr><td>${x.i}</td><td>${escapeHtml(x.name)}</td><td>${x.inTime}</td><td>${x.outTime}</td><td>${x.note||'—'}</td><td><span class="pill ${x.cls}">${x.status}</span></td></tr>`).join('')||'<tr><td colspan="6" class="empty">ยังไม่มีรายชื่อบุคลากร</td></tr>';}
+function addRecord(name,action,date,time){if(!name||!action||!date||!time){alert('กรุณากรอกข้อมูลให้ครบ');return;}state.records.push({id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random()),name,action,date,time,createdAt:new Date().toISOString()});save();renderAll();alert(`บันทึก${action}ของ ${name} เรียบร้อยแล้ว`);}
+function quickRecord(action){const name=document.getElementById('quickStaff').value;const d=new Date();addRecord(name,action,dateKey(d),nowTime());}
+function quickOther(){const name=document.getElementById('quickStaff').value;const action=document.getElementById('quickStatus').value;const d=new Date();addRecord(name,action,dateKey(d),nowTime());}
+function manualRecord(){addRecord(document.getElementById('manualStaff').value,document.getElementById('manualAction').value,document.getElementById('manualDate').value,document.getElementById('manualTime').value);}
+function renderHistory(){const day=document.getElementById('historyDate').value,staff=document.getElementById('historyStaff').value,action=document.getElementById('historyAction').value;let rows=[...state.records].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));if(day)rows=rows.filter(r=>r.date===day);if(staff)rows=rows.filter(r=>norm(r.name)===norm(staff));if(action)rows=rows.filter(r=>r.action===action);document.getElementById('historyRows').innerHTML=rows.length?rows.map(r=>`<tr><td>${r.date} ${r.time}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.action)}</td><td class="no-print"><button class="btn small outline" onclick="editRecord('${r.id}')">แก้ไข</button> <button class="btn small danger" onclick="deleteRecord('${r.id}')">ลบ</button></td></tr>`).join(''):'<tr><td colspan="4" class="empty">ไม่พบรายการบันทึก</td></tr>';}
+function editRecord(id){const r=state.records.find(x=>x.id===id);if(!r)return;const name=prompt('แก้ไขชื่อ-นามสกุล',r.name);if(name===null)return;const action=prompt('ประเภทการบันทึก (ใช้ชื่อประเภทตามรายการในระบบ)',r.action);if(action===null)return;if(!state.staff.some(s=>norm(s)===norm(name))||!ACTIONS.includes(action)){alert('ชื่อบุคลากรหรือประเภทการบันทึกไม่ถูกต้อง');return;}const date=prompt('วันที่ YYYY-MM-DD',r.date);if(date===null)return;const time=prompt('เวลา HH:MM:SS',r.time);if(time===null)return;r.name=name;r.action=action;r.date=date;r.time=time;save();renderAll();}
+function deleteRecord(id){if(!confirm('ยืนยันลบรายการนี้หรือไม่?'))return;state.records=state.records.filter(r=>r.id!==id);save();renderAll();}
+function clearHistoryFilters(){['historyDate','historyStaff','historyAction'].forEach(id=>document.getElementById(id).value='');renderHistory();}
+function renderStaff(){document.getElementById('staffTotal').textContent=`${state.staff.length} คน`;document.getElementById('staffRows').innerHTML=state.staff.map((n,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(n)}</td><td class="no-print"><button class="btn small outline" onclick="renameStaff(${i})">แก้ไขชื่อ</button> <button class="btn small danger" onclick="removeStaff(${i})">ลบ</button></td></tr>`).join('')||'<tr><td colspan="3" class="empty">ยังไม่มีรายชื่อ</td></tr>';}
+function addStaff(){const el=document.getElementById('newStaff'),name=el.value.trim();if(!name)return alert('กรุณากรอกชื่อ');if(state.staff.some(n=>norm(n)===norm(name)))return alert('มีรายชื่อนี้แล้ว');state.staff.push(name);save();el.value='';renderAll();}
+function renameStaff(i){const old=state.staff[i],name=prompt('แก้ไขชื่อบุคลากร',old);if(name===null||!name.trim())return;state.staff[i]=name.trim();state.records.forEach(r=>{if(norm(r.name)===norm(old))r.name=name.trim();});save();renderAll();}
+function removeStaff(i){const name=state.staff[i];if(!confirm(`ลบรายชื่อ ${name} หรือไม่? ประวัติการบันทึกเดิมจะยังคงอยู่`))return;state.staff.splice(i,1);save();renderAll();}
+function selectedReportNames(){return [...document.querySelectorAll('#reportStaffSelection input:checked')].map(x=>x.value);}
+function toggleReportSelection(on){document.querySelectorAll('#reportStaffSelection input').forEach(x=>x.checked=on);renderReport();}
+function renderReport(){const day=document.getElementById('reportDate').value||dateKey();const chosen=selectedReportNames();const allRows=dailyData(day);const rows=allRows.filter(x=>chosen.includes(x.name));document.getElementById('reportDateThai').textContent='วันที่ '+new Date(day+'T00:00:00').toLocaleDateString('th-TH',{dateStyle:'long'});document.getElementById('reportRows').innerHTML=rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:left">${escapeHtml(x.name)}</td><td>${x.inTime}</td><td>${x.outTime}</td><td>${x.note||'—'}</td></tr>`).join('')||'<tr><td colspan="5">กรุณาเลือกรายชื่อบุคลากร</td></tr>';document.getElementById('selectedReportCount').textContent=`เลือก ${rows.length} จาก ${state.staff.length} คน`;const c={present:rows.filter(x=>x.status==='มาปฏิบัติราชการ').length,leave:rows.filter(x=>['ลาป่วย','ลากิจ','ลาคลอด','ไปราชการ'].includes(x.status)).length,late:rows.filter(x=>x.status==='เข้าสาย').length,missing:rows.filter(x=>x.status==='ขาด'||x.status==='ลงเวลาไม่ครบ').length};document.getElementById('reportSummary').innerHTML=`<table><tbody><tr><th>สรุปจำนวนบุคลากร</th><th>จำนวน (คน)</th></tr><tr><td>มาปฏิบัติราชการ</td><td>${c.present}</td></tr><tr><td>ลาป่วย (S)</td><td>${rows.filter(x=>x.note==='S').length}</td></tr><tr><td>ลากิจ (P)</td><td>${rows.filter(x=>x.note==='P').length}</td></tr><tr><td>ลาคลอดบุตร (M)</td><td>${rows.filter(x=>x.note==='M').length}</td></tr><tr><td>เข้าสาย (R)</td><td>${c.late}</td></tr><tr><td>ไปราชการ (O)</td><td>${rows.filter(x=>x.note==='O').length}</td></tr><tr><td>ขาด</td><td>${rows.filter(x=>x.status==='ขาด').length}</td></tr><tr><td>บุคลากรทั้งหมดที่เลือก</td><td>${rows.length}</td></tr></tbody></table>`;}
+function exportCSV(){const day=document.getElementById('reportDate').value||dateKey();const rows=dailyData(day);const data=[['ลำดับ','ชื่อ-สกุล','วันที่','เวลามา','เวลากลับ','หมายเหตุ','สถานะ'],...rows.map(x=>[x.i,x.name,day,x.inTime,x.outTime,x.note,x.status])];const csv='\uFEFF'+data.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`CPP_Attendance_${day}.csv`;a.click();URL.revokeObjectURL(url);}
+function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('hidden',p.id!==page));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='history')renderHistory();if(page==='staff')renderStaff();if(page==='report')renderReport();if(page==='dashboard')renderDashboard();}
+function renderAll(){fillStaff();renderDashboard();renderHistory();renderStaff();renderReport();}
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button[data-page]');if(b)showPage(b.dataset.page);});
+document.getElementById('quickStaff').addEventListener('change',e=>document.getElementById('quickName').textContent=e.target.value);
+const today=dateKey();document.getElementById('todayText').textContent=new Date().toLocaleDateString('th-TH',{dateStyle:'full'});document.getElementById('manualDate').value=today;document.getElementById('manualTime').value=nowTime();document.getElementById('reportDate').value=today;fillStaff();renderAll();
+</script>
+</body>
+</html>
